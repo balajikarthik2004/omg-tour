@@ -72,3 +72,39 @@ export async function fetchUsaTourRequests(
 
   return body.data
 }
+
+/** Unfiltered snapshot used for the summary tiles and the location options. */
+export const OVERVIEW_LIMIT = 1000
+
+export type Overview = {
+  total: number
+  publicCount: number
+  privateCount: number
+  locations: string[]
+  /** True when `total` exceeds what one request returned, so counts are partial. */
+  partial: boolean
+}
+
+export function summarize(
+  rows: UsaTourRequest[],
+  total: number,
+): Overview {
+  const counts = rows.reduce(
+    (acc, row) => {
+      const key = row.event_type?.toLowerCase()
+      if (key === 'public') acc.publicCount += 1
+      else if (key === 'private') acc.privateCount += 1
+      return acc
+    },
+    { publicCount: 0, privateCount: 0 },
+  )
+
+  return {
+    total,
+    ...counts,
+    locations: [...new Set(rows.map((row) => row.location).filter(Boolean))].sort(
+      (a, b) => a.localeCompare(b),
+    ),
+    partial: total > rows.length,
+  }
+}

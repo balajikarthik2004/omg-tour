@@ -43,14 +43,21 @@ it is sent as `Authorization: Bearer <token>`.
   date cells) containing **every row matching the current filters**, not just
   the visible page. Filename encodes the filters and date, e.g.
   `usa-tour-requests_public_houston_2026-08-25.xlsx`.
+- **Summary tiles** — total requests, Public / Private counts with share
+  meters, and the number of distinct locations. These describe the **whole**
+  dataset, not the filtered view, and come from one unfiltered request
+  (`OVERVIEW_LIMIT` rows) made alongside the table's own.
 - **Filters** — a segmented control for `event_type` (All / Public / Private)
-  and a search field for `location` with a clear button (debounced 350 ms);
-  both reset the offset back to page 1.
-- **Pagination** — `limit` / `offset`; `data.total` drives the page count and
-  the "Showing 1–25 of N" label.
-- **States** — skeleton rows while loading, an empty state when nothing
-  matches, and a retryable error banner when the request fails or returns
-  `success: false`.
+  and a dropdown of the locations that actually exist in the data. Because the
+  API matches `location` exactly, a dropdown of real values beats free text.
+  Changing either resets the offset to page 1.
+- **Pagination** — `limit` / `offset`, with numbered pages (windowed as
+  `1 … 4 5 6 … 12`) and Previous/Next. Hidden entirely on a single page.
+- **States** — skeleton rows while loading, an empty state with a "Clear
+  filters" action when nothing matches, and a retryable error banner when the
+  request fails or returns `success: false`.
+- **Responsive** — below 720px the table becomes one labelled card per record
+  (no horizontal scrolling) and the export button collapses to its icon.
 - In-flight requests are aborted when the filters change, so a slow response
   can't overwrite a newer one.
 
@@ -58,7 +65,8 @@ it is sent as `Authorization: Bearer <token>`.
 
 | File | Purpose |
 | --- | --- |
-| [src/api.ts](src/api.ts) | Request/response types, query builder, the fetch |
+| [src/api.ts](src/api.ts) | Request/response types, query builder, the fetch, `summarize()` |
+| [src/StatTiles.tsx](src/StatTiles.tsx) | Summary KPI row |
 | [src/TopNav.tsx](src/TopNav.tsx) | Top nav bar and export button |
 | [src/exportExcel.ts](src/exportExcel.ts) | Excel column schema and file naming |
 | [src/App.tsx](src/App.tsx) | Filters, table, pagination |
@@ -74,6 +82,46 @@ it is sent as `Authorization: Bearer <token>`.
   the deployment must avoid third-party requests.
 - `public/favicon.svg` is still a placeholder mark — swap it for a small
   exported version of the real logo when convenient.
+### Colour roles
+
+Tokens are taken from the live site, **omgofficial.com**, which publishes them
+as CSS custom properties: `--primary #293088`, `--secondary #e22e26`,
+`--accent #ffc107`. Its ink is neutral (`#262626` text, `#71717a` muted) rather
+than navy-tinted, it is Montserrat throughout at body weight 400, and its
+controls use a 10px radius. This app follows all of that.
+
+Each colour has exactly one job:
+
+| Colour | Used for | Not used for |
+| --- | --- | --- |
+| Navy `#293088` | nav bar, active controls, table-header text, links | data categories that need telling apart at a glance |
+| Red `#E22E28` | the primary action (Export), the nav hairline, error states | ordinary categories — red reads as an alert |
+| Amber `#FFC107` | the Locations chip, emphasis | actions or errors |
+| Slate `#414A63` | the Private badge | anything that is genuinely a problem |
+| Navy-500 `#353BBD` | meter fills | chrome |
+
+Depth comes from gradients on the brand hues rather than extra colours: the nav
+and the active segment run navy-500 → navy-600, the Export button red-400 →
+red-500, meter fills navy-400 → navy-600, and the page carries a navy-tinted
+wash that fades out below the nav. The "Total requests" tile is a filled navy
+card so one number leads the row.
+
+Three deliberate calls:
+
+- **`Private` wears slate, not red.** Public and Private are peer categories;
+  painting one of them in the error colour made a normal record look like a
+  problem. Red now means "act" or "something broke", nothing else.
+- **The table header is a light navy tint, not a navy slab.** Two saturated
+  navy bands (nav + header) competed with each other and pushed the data into
+  third place. `#293088` survives as the header *text* colour.
+- **Locations wears amber, not red.** Adopting the site's third brand colour
+  freed red to mean only "act" or "something broke".
+- **Meter fills are navy-500 `#353BBD`, not `#293088`.** As chart marks the
+  colours must sit inside a lightness band; `#293088` (L 0.363) falls below it.
+  Every text pairing above was checked against WCAG AA — the tightest is white
+  on red-500 at 4.51:1.
+- The table is not sortable. The API exposes no sort parameter, and sorting
+  only the fetched page would be misleading across pagination.
 
 ## Scripts
 

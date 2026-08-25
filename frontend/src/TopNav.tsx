@@ -27,6 +27,7 @@ function TopNav({ onExport, exporting, canExport }: TopNavProps) {
           className="btn primary"
           onClick={onExport}
           disabled={exporting || !canExport}
+          aria-label="Export to Excel"
           title={
             canExport ? 'Download all matching rows' : 'Nothing to export yet'
           }
@@ -45,7 +46,9 @@ function TopNav({ onExport, exporting, canExport }: TopNavProps) {
               strokeLinejoin="round"
             />
           </svg>
-          {exporting ? 'Exporting…' : 'Export to Excel'}
+          <span className="btn-text">
+            {exporting ? 'Exporting…' : 'Export to Excel'}
+          </span>
         </button>
       </div>
     </nav>
