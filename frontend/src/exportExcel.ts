@@ -25,7 +25,8 @@ const columns: Column<UsaTourRequest>[] = [
   {
     header: header('Mobile number'),
     width: 18,
-    cell: (row) => ({ value: row.mobile_number, type: String }),
+    cell: (row) =>
+      row.mobile_number ? { value: row.mobile_number, type: String } : null,
   },
   {
     header: header('Event type'),

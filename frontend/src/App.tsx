@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   buildQuery,
   fetchUsaTourRequests,
-  USE_MOCK_DATA,
   type Filters,
   type UsaTourRequest,
 } from './api'
@@ -19,7 +18,9 @@ const PAGE_SIZES = [10, 25, 50, 100]
 
 const DEFAULT_FILTERS: Filters = {
   event_type: 'Public',
-  location: 'Houston',
+  // Left blank on purpose: the API matches `location` exactly, so seeding it
+  // with a city would load an empty table on first paint.
+  location: '',
   limit: 25,
   offset: 0,
 }
@@ -186,7 +187,7 @@ function App() {
               </svg>
               <input
                 type="text"
-                placeholder="Search by city, e.g. Houston"
+                placeholder="Exact location, e.g. Dallas"
                 value={locationInput}
                 onChange={(e) => setLocationInput(e.target.value)}
               />
@@ -234,7 +235,6 @@ function App() {
 
         <div className="table-meta">
           <span className={error ? 'meta-error' : undefined}>{resultLabel}</span>
-          {USE_MOCK_DATA && <span className="tag">Sample data</span>}
         </div>
 
         {error && (
@@ -299,9 +299,13 @@ function App() {
                     <td className="num">{filters.offset + index + 1}</td>
                     <td className="strong">{row.name}</td>
                     <td>
-                      <a href={`tel:${row.mobile_number}`}>
-                        {row.mobile_number}
-                      </a>
+                      {row.mobile_number ? (
+                        <a href={`tel:${row.mobile_number}`}>
+                          {row.mobile_number}
+                        </a>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
                     </td>
                     <td>
                       <span

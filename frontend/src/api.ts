@@ -1,9 +1,7 @@
-import { MOCK_REQUESTS } from './mockData'
-
 export type UsaTourRequest = {
   id: string
   name: string
-  mobile_number: string
+  mobile_number: string | null
   event_type: string
   tour_date: string
   location: string
@@ -31,9 +29,14 @@ export type Filters = {
 
 const TOKEN = import.meta.env.VITE_API_TOKEN as string | undefined
 
-/** Serve placeholder rows until the admin API is wired up. */
-export const USE_MOCK_DATA =
-  (import.meta.env.VITE_USE_MOCK_DATA as string | undefined) !== 'false'
+const DEFAULT_API_BASE_URL =
+  'https://omg-temple-service-966169042016.asia-south1.run.app'
+
+/** Trailing slashes stripped so the path below always joins cleanly. */
+const API_BASE_URL = (
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
+  DEFAULT_API_BASE_URL
+).replace(/\/+$/, '')
 
 export function buildQuery(filters: Filters): string {
   const params = new URLSearchParams()
@@ -44,33 +47,11 @@ export function buildQuery(filters: Filters): string {
   return params.toString()
 }
 
-function mockResponse(filters: Filters): UsaTourRequestsResponse['data'] {
-  const location = filters.location.trim().toLowerCase()
-  const matched = MOCK_REQUESTS.filter(
-    (row) =>
-      (!filters.event_type || row.event_type === filters.event_type) &&
-      (!location || row.location.toLowerCase().includes(location)),
-  )
-
-  return {
-    total: matched.length,
-    list: matched.slice(filters.offset, filters.offset + filters.limit),
-    limit: filters.limit,
-    offset: filters.offset,
-  }
-}
-
 export async function fetchUsaTourRequests(
   filters: Filters,
   signal?: AbortSignal,
 ): Promise<UsaTourRequestsResponse['data']> {
-  if (USE_MOCK_DATA) {
-    await new Promise((resolve) => setTimeout(resolve, 250))
-    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
-    return mockResponse(filters)
-  }
-
-  const url = `/admin/usa-tour-requests?${buildQuery(filters)}`
+  const url = `${API_BASE_URL}/admin/usa-tour-requests?${buildQuery(filters)}`
 
   const res = await fetch(url, {
     signal,

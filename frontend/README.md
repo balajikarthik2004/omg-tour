@@ -11,19 +11,27 @@ npm install
 npm run dev
 ```
 
-Out of the box the page renders **placeholder rows** from
-[src/mockData.ts](src/mockData.ts) and shows a "Sample data" pill in the nav.
-Set `VITE_USE_MOCK_DATA=false` to switch to the real endpoint.
+The app calls the deployed service directly:
 
-`VITE_API_BASE_URL` (default `http://localhost:3000`) is only used by the Vite
-dev proxy in [vite.config.ts](vite.config.ts): the page always fetches the
-relative path `/admin/usa-tour-requests`, so the browser makes a same-origin
-request and CORS never comes into play. In production, serve the built `dist/`
-behind the same host as the API (or add an equivalent proxy rule at your web
-server).
+```
+https://omg-temple-service-966169042016.asia-south1.run.app/admin/usa-tour-requests
+```
 
-If the admin route is protected, set `VITE_API_TOKEN` and it is sent as
-`Authorization: Bearer <token>`.
+That base URL is the default in [src/api.ts](src/api.ts); override it with
+`VITE_API_BASE_URL` to point at a local or staging API. The service sends
+`access-control-allow-origin: *`, so no dev proxy is involved and the same
+build works in production.
+
+The route is public today. If it ever gets protected, set `VITE_API_TOKEN` and
+it is sent as `Authorization: Bearer <token>`.
+
+### API behaviour worth knowing
+
+- `location` is matched **exactly** server-side — `Houston` does not match
+  `Sri Venkateswara Temple , Houston`. That is why the default filter leaves
+  location blank.
+- `mobile_number` can be `null` (16 of 21 records at the time of writing). The
+  table shows an em dash and the export leaves the cell empty.
 
 ## What the page does
 
@@ -50,8 +58,7 @@ If the admin route is protected, set `VITE_API_TOKEN` and it is sent as
 
 | File | Purpose |
 | --- | --- |
-| [src/api.ts](src/api.ts) | Request/response types, query builder, fetch + mock switch |
-| [src/mockData.ts](src/mockData.ts) | Placeholder rows |
+| [src/api.ts](src/api.ts) | Request/response types, query builder, the fetch |
 | [src/TopNav.tsx](src/TopNav.tsx) | Top nav bar and export button |
 | [src/exportExcel.ts](src/exportExcel.ts) | Excel column schema and file naming |
 | [src/App.tsx](src/App.tsx) | Filters, table, pagination |

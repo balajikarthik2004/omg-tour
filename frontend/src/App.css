@@ -336,19 +336,6 @@ input:focus-visible {
   color: var(--danger);
 }
 
-.tag {
-  font-family: var(--heading);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: var(--navy-600);
-  background: var(--navy-50);
-  border: 1px solid var(--navy-100);
-  border-radius: 999px;
-  padding: 3px 9px;
-}
-
 /* ---------- Alert ---------- */
 .alert {
   display: flex;
