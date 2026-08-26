@@ -1,4 +1,5 @@
 import logo from './assets/logo.png'
+import { ExportIcon } from './Icons'
 
 type TopNavProps = {
   onExport: () => void
@@ -32,20 +33,7 @@ function TopNav({ onExport, exporting, canExport }: TopNavProps) {
             canExport ? 'Download all matching rows' : 'Nothing to export yet'
           }
         >
-          <svg
-            className="btn-icon"
-            viewBox="0 0 20 20"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M10 3v9m0 0 3.5-3.5M10 12 6.5 8.5M4 14.5V16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-1.5"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ExportIcon className="btn-icon" />
           <span className="btn-text">
             {exporting ? 'Exporting…' : 'Export to Excel'}
           </span>

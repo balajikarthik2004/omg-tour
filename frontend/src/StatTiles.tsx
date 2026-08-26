@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode, SVGProps } from 'react'
 import type { Overview } from './api'
+import { GlobeIcon, LockIcon, MapIcon, StackIcon } from './Icons'
 
 type StatTilesProps = {
   overview: Overview | null
@@ -10,44 +11,15 @@ function share(part: number, whole: number): number {
   return Math.round((part / whole) * 100)
 }
 
-const stroke = {
-  stroke: 'currentColor',
-  strokeWidth: 1.7,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-}
-
-const ICONS: Record<string, ReactNode> = {
-  total: <path d="M3 5.5h14M3 10h14M3 14.5h9" {...stroke} />,
-  public: (
-    <>
-      <circle cx="10" cy="10" r="6.75" {...stroke} fill="none" />
-      <path d="M3.5 10h13M10 3.25c3.4 3.6 3.4 9.9 0 13.5-3.4-3.6-3.4-9.9 0-13.5Z" {...stroke} />
-    </>
-  ),
-  private: (
-    <>
-      <rect x="4.5" y="9" width="11" height="7.5" rx="2" {...stroke} fill="none" />
-      <path d="M7.25 9V6.75a2.75 2.75 0 0 1 5.5 0V9" {...stroke} />
-    </>
-  ),
-  locations: (
-    <>
-      <path d="M10 17.5s5.5-4.4 5.5-8.5a5.5 5.5 0 0 0-11 0c0 4.1 5.5 8.5 5.5 8.5Z" {...stroke} fill="none" />
-      <circle cx="10" cy="8.75" r="1.9" {...stroke} fill="none" />
-    </>
-  ),
-}
-
 function Tile({
-  icon,
+  icon: Glyph,
   tone,
   label,
   value,
   feature,
   children,
 }: {
-  icon: string
+  icon: ComponentType<SVGProps<SVGSVGElement>>
   tone: 'navy' | 'slate' | 'amber'
   label: string
   value: ReactNode
@@ -58,9 +30,7 @@ function Tile({
     <div className={feature ? 'stat feature' : 'stat'}>
       <span className="stat-head">
         <span className={`stat-icon ${tone}`}>
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            {ICONS[icon]}
-          </svg>
+          <Glyph />
         </span>
         <span className="stat-label">{label}</span>
       </span>
@@ -108,7 +78,7 @@ function StatTiles({ overview }: StatTilesProps) {
   return (
     <section className="stats" aria-label="Summary">
       <Tile
-        icon="total"
+        icon={StackIcon}
         tone="navy"
         label="Total requests"
         value={overview.total.toLocaleString()}
@@ -118,7 +88,7 @@ function StatTiles({ overview }: StatTilesProps) {
       </Tile>
 
       <Tile
-        icon="public"
+        icon={GlobeIcon}
         tone="navy"
         label="Public"
         value={overview.publicCount.toLocaleString()}
@@ -128,7 +98,7 @@ function StatTiles({ overview }: StatTilesProps) {
       </Tile>
 
       <Tile
-        icon="private"
+        icon={LockIcon}
         tone="slate"
         label="Private"
         value={overview.privateCount.toLocaleString()}
@@ -138,7 +108,7 @@ function StatTiles({ overview }: StatTilesProps) {
       </Tile>
 
       <Tile
-        icon="locations"
+        icon={MapIcon}
         tone="amber"
         label="Locations"
         value={overview.locations.length}

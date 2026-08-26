@@ -29,6 +29,11 @@ const columns: Column<UsaTourRequest>[] = [
       row.mobile_number ? { value: row.mobile_number, type: String } : null,
   },
   {
+    header: header('Email'),
+    width: 26,
+    cell: (row) => (row.email ? { value: row.email, type: String } : null),
+  },
+  {
     header: header('Event type'),
     width: 14,
     cell: (row) => ({ value: row.event_type, type: String }),
@@ -42,6 +47,12 @@ const columns: Column<UsaTourRequest>[] = [
     header: header('Location'),
     width: 18,
     cell: (row) => ({ value: row.location, type: String }),
+  },
+  {
+    header: header('Event venue'),
+    width: 26,
+    cell: (row) =>
+      row.event_venue ? { value: row.event_venue, type: String } : null,
   },
   {
     header: header('Created'),

@@ -11,6 +11,20 @@ import {
 import { exportToExcel } from './exportExcel'
 import StatTiles from './StatTiles'
 import TopNav from './TopNav'
+import {
+  AlertIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ClockIcon,
+  GlobeIcon,
+  InboxIcon,
+  LockIcon,
+  PinIcon,
+  RefreshIcon,
+  ResetIcon,
+  RowsIcon,
+  TicketIcon,
+} from './Icons'
 import './App.css'
 
 const EVENT_TYPES = [
@@ -203,6 +217,7 @@ function App() {
           <div className="header-actions">
             {result && !error && (
               <span className="stamp">
+                <ClockIcon className="stamp-icon" />
                 Updated {formatTime(result.fetchedAt)}
               </span>
             )}
@@ -212,20 +227,9 @@ function App() {
               onClick={() => setReloadKey((k) => k + 1)}
               disabled={loading}
             >
-              <svg
-                className="btn-icon"
-                viewBox="0 0 20 20"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M16.5 10a6.5 6.5 0 1 1-2-4.7M16.5 3.5V6H14"
-                  stroke="currentColor"
-                  strokeWidth="1.7"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <RefreshIcon
+                className={loading ? 'btn-icon spinning' : 'btn-icon'}
+              />
               {loading ? 'Refreshing…' : 'Refresh'}
             </button>
           </div>
@@ -236,6 +240,7 @@ function App() {
         <section className="filters" aria-label="Filters">
           <div className="filter-group">
             <span className="filter-label" id="event-type-label">
+              <TicketIcon className="filter-icon" />
               Event type
             </span>
             <div
@@ -260,7 +265,10 @@ function App() {
           </div>
 
           <label className="filter-group grow">
-            <span className="filter-label">Location</span>
+            <span className="filter-label">
+              <PinIcon className="filter-icon" />
+              Location
+            </span>
             <select
               className="control"
               value={filters.location}
@@ -276,7 +284,10 @@ function App() {
           </label>
 
           <label className="filter-group">
-            <span className="filter-label">Rows</span>
+            <span className="filter-label">
+              <RowsIcon className="filter-icon" />
+              Rows
+            </span>
             <select
               className="control"
               value={filters.limit}
@@ -295,6 +306,7 @@ function App() {
             className="btn ghost reset"
             onClick={() => setFilters(DEFAULT_FILTERS)}
           >
+            <ResetIcon className="btn-icon" />
             Reset
           </button>
         </section>
@@ -306,6 +318,7 @@ function App() {
         {error && (
           <div className="alert" role="alert">
             <span>
+              <AlertIcon className="alert-icon" />
               <strong>Request failed.</strong> {error}
             </span>
             <button
@@ -321,6 +334,7 @@ function App() {
         {exportError && (
           <div className="alert" role="alert">
             <span>
+              <AlertIcon className="alert-icon" />
               <strong>Export failed.</strong> {exportError}
             </span>
           </div>
@@ -333,9 +347,11 @@ function App() {
                 <th className="num">#</th>
                 <th>Name</th>
                 <th>Mobile number</th>
+                <th>Email</th>
                 <th>Event type</th>
                 <th>Tour date</th>
                 <th>Location</th>
+                <th>Event venue</th>
                 <th>Created</th>
               </tr>
             </thead>
@@ -343,7 +359,7 @@ function App() {
               {loading &&
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={`skeleton-${i}`}>
-                    {Array.from({ length: 7 }).map((__, j) => (
+                    {Array.from({ length: 9 }).map((__, j) => (
                       <td key={j}>
                         <span className="skeleton" />
                       </td>
@@ -353,29 +369,10 @@ function App() {
 
               {!loading && !error && rows.length === 0 && (
                 <tr>
-                  <td className="empty" colSpan={7}>
-                    <svg
-                      className="empty-icon"
-                      viewBox="0 0 48 48"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <rect
-                        x="8"
-                        y="10"
-                        width="32"
-                        height="28"
-                        rx="4"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                      />
-                      <path
-                        d="M8 19h32M18 27h12"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                      />
-                    </svg>
+                  <td className="empty" colSpan={9}>
+                    <span className="empty-art">
+                      <InboxIcon className="empty-icon" />
+                    </span>
                     <span className="empty-title">No tour requests found</span>
                     <span className="empty-hint">
                       {filtersActive
@@ -422,22 +419,40 @@ function App() {
                         <span className="muted">—</span>
                       )}
                     </td>
+                    <td data-label="Email">
+                      {row.email ? (
+                        <a href={`mailto:${row.email}`}>{row.email}</a>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </td>
                     <td data-label="Event type">
-                      <span
-                        className={
-                          row.event_type?.toLowerCase() === 'private'
-                            ? 'badge private'
-                            : 'badge public'
-                        }
-                      >
-                        {row.event_type}
-                      </span>
+                      {row.event_type?.toLowerCase() === 'private' ? (
+                        <span className="badge private">
+                          <LockIcon className="badge-icon" />
+                          {row.event_type}
+                        </span>
+                      ) : (
+                        <span className="badge public">
+                          <GlobeIcon className="badge-icon" />
+                          {row.event_type}
+                        </span>
+                      )}
                     </td>
                     <td data-label="Tour date">{row.tour_date}</td>
                     <td data-label="Location">
                       <span className="clamp" title={row.location}>
                         {row.location}
                       </span>
+                    </td>
+                    <td data-label="Event venue">
+                      {row.event_venue ? (
+                        <span className="clamp" title={row.event_venue}>
+                          {row.event_venue}
+                        </span>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
                     </td>
                     <td className="muted" data-label="Created">
                       {formatDateTime(row.createdAt)}
@@ -465,6 +480,7 @@ function App() {
                   }))
                 }
               >
+                <ChevronLeftIcon className="btn-icon sm" />
                 Previous
               </button>
 
@@ -506,6 +522,7 @@ function App() {
                 }
               >
                 Next
+                <ChevronRightIcon className="btn-icon sm" />
               </button>
             </div>
           </nav>

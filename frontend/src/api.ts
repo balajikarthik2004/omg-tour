@@ -2,9 +2,11 @@ export type UsaTourRequest = {
   id: string
   name: string
   mobile_number: string | null
+  email: string | null
   event_type: string
   tour_date: string
   location: string
+  event_venue: string | null
   createdAt: string
   updatedAt: string
 }
